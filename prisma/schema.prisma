@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String?
+  currency        String   @default("USD")
+  hourlyRate      Decimal? @map("hourly_rate")
+  logoUrl         String?  @map("logo_url")
+  businessName    String?  @map("business_name")
+  businessAddress String?  @map("business_address")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  clients  Client[]
+  invoices Invoice[]
+  expenses Expense[]
+
+  @@map("users")
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  name      String
+  email     String?
+  company   String?
+  address   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects Project[]
+  invoices Invoice[]
+
+  @@map("clients")
+}
+
+model Project {
+  id         String   @id @default(cuid())
+  clientId   String   @map("client_id")
+  name       String
+  hourlyRate Decimal? @map("hourly_rate")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  timeEntries TimeEntry[]
+
+  @@map("projects")
+}
+
+model TimeEntry {
+  id          String    @id @default(cuid())
+  projectId   String    @map("project_id")
+  description String?
+  startTime   DateTime  @map("start_time")
+  endTime     DateTime? @map("end_time")
+  duration    Int? // in seconds
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("time_entries")
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  userId        String        @map("user_id")
+  clientId      String        @map("client_id")
+  invoiceNumber String        @map("invoice_number")
+  status        InvoiceStatus @default(DRAFT)
+  issueDate     DateTime      @default(now()) @map("issue_date")
+  dueDate       DateTime      @map("due_date")
+  totalAmount   Decimal       @map("total_amount")
+  currency      String        @default("USD")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  items  InvoiceItem[]
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String  @map("invoice_id")
+  description String
+  quantity    Decimal
+  price       Decimal
+  amount      Decimal // quantity * price
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("invoice_items")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  description String
+  amount      Decimal
+  date        DateTime @default(now())
+  receiptUrl  String?  @map("receipt_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("expenses")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  VIEWED
+  PAID
+  OVERDUE
+  VOID
+}
