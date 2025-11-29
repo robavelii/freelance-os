@@ -1,6 +1,11 @@
-import { getInvoices } from "@/actions/invoices";
+import { getInvoices, type InvoiceStatus } from "@/actions/invoices";
 import { getClients } from "@/actions/clients";
 import { InvoiceDialog } from "@/components/invoice-dialog";
+import { InvoiceStatusFilter } from "@/components/invoice-status-filter";
+import { DownloadPDFButton } from "@/components/download-pdf-button";
+import { SendInvoiceDialog } from "@/components/send-invoice-dialog";
+import { MarkPaidButton } from "@/components/mark-paid-button";
+import { ExportCSVButton } from "@/components/export-csv-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -14,8 +19,14 @@ const statusColors: Record<string, string> = {
   VOID: "bg-gray-400",
 };
 
-export default async function InvoicesPage() {
-  const invoices = await getInvoices();
+interface InvoicesPageProps {
+  searchParams: Promise<{ status?: string }>;
+}
+
+export default async function InvoicesPage({ searchParams }: InvoicesPageProps) {
+  const params = await searchParams;
+  const statusFilter = params.status as InvoiceStatus | "ALL" | undefined;
+  const invoices = await getInvoices(statusFilter);
   const clients = await getClients();
 
   const totalAmount = invoices
@@ -26,7 +37,11 @@ export default async function InvoicesPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
-        <InvoiceDialog clients={clients} />
+        <div className="flex items-center gap-2">
+          <ExportCSVButton endpoint="invoices" />
+          <InvoiceStatusFilter />
+          <InvoiceDialog clients={clients} />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -84,8 +99,26 @@ export default async function InvoicesPage() {
                   <p>Due Date: {format(invoice.dueDate, "MMM d, yyyy")}</p>
                   <p className="mt-2">{invoice.items.length} item(s)</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end gap-2">
                   <p className="text-2xl font-bold">${Number(invoice.totalAmount).toFixed(2)}</p>
+                  <div className="flex gap-2">
+                    <SendInvoiceDialog
+                      invoiceId={invoice.id}
+                      invoiceNumber={invoice.invoiceNumber}
+                      clientName={invoice.client.name}
+                      clientEmail={invoice.client.email}
+                      disabled={invoice.status === "PAID" || invoice.status === "VOID"}
+                    />
+                    <MarkPaidButton
+                      invoiceId={invoice.id}
+                      invoiceNumber={invoice.invoiceNumber}
+                      disabled={invoice.status === "PAID" || invoice.status === "VOID"}
+                    />
+                    <DownloadPDFButton 
+                      invoiceId={invoice.id} 
+                      invoiceNumber={invoice.invoiceNumber} 
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
