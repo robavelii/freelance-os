@@ -2,10 +2,14 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { checkOverdueInvoices } from "./invoices";
 
 export async function getDashboardStats() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
+
+  // Check and update overdue invoices on dashboard load
+  await checkOverdueInvoices(userId);
 
   // Get total clients
   const totalClients = await prisma.client.count({
