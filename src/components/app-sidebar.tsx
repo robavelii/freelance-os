@@ -80,6 +80,11 @@ const data = {
       url: "/expenses",
       icon: CreditCard,
     },
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: Settings2,
+    },
   ],
 }
 
