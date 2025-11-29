@@ -35,9 +35,9 @@ export default async function InvoicesPage({ searchParams }: InvoicesPageProps) 
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ExportCSVButton endpoint="invoices" />
           <InvoiceStatusFilter />
           <InvoiceDialog clients={clients} />
@@ -82,26 +82,26 @@ export default async function InvoicesPage({ searchParams }: InvoicesPageProps) 
         {invoices.map((invoice: any) => (
           <Card key={invoice.id}>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <CardTitle>{invoice.invoiceNumber}</CardTitle>
                   <CardDescription>{invoice.client.name}</CardDescription>
                 </div>
-                <Badge className={statusColors[invoice.status]}>
+                <Badge className={`w-fit ${statusColors[invoice.status]}`}>
                   {invoice.status}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="text-sm text-muted-foreground">
                   <p>Issue Date: {format(invoice.issueDate, "MMM d, yyyy")}</p>
                   <p>Due Date: {format(invoice.dueDate, "MMM d, yyyy")}</p>
                   <p className="mt-2">{invoice.items.length} item(s)</p>
                 </div>
-                <div className="text-right flex flex-col items-end gap-2">
+                <div className="flex flex-col items-start gap-2 sm:items-end">
                   <p className="text-2xl font-bold">${Number(invoice.totalAmount).toFixed(2)}</p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <SendInvoiceDialog
                       invoiceId={invoice.id}
                       invoiceNumber={invoice.invoiceNumber}

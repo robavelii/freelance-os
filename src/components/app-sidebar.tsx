@@ -81,6 +81,16 @@ const data = {
       icon: CreditCard,
     },
     {
+      title: "AI Insights",
+      url: "/insights",
+      icon: Bot,
+    },
+    {
+      title: "Pricing",
+      url: "/pricing",
+      icon: CreditCard,
+    },
+    {
       title: "Settings",
       url: "/settings",
       icon: Settings2,
@@ -97,7 +107,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link href="/pricing">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>
@@ -105,7 +115,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="truncate font-semibold">FreelanceOS</span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
