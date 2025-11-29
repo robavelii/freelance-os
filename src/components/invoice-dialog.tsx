@@ -24,7 +24,6 @@ import { createInvoice } from "@/actions/invoices"
 
 const formSchema = z.object({
   clientId: z.string().min(1, "Client is required"),
-  invoiceNumber: z.string().min(1, "Invoice number is required"),
   dueDate: z.string().min(1, "Due date is required"),
   items: z.array(z.object({
     description: z.string().min(1, "Description is required"),
@@ -39,7 +38,7 @@ interface InvoiceDialogProps {
 
 export function InvoiceDialog({ clients }: InvoiceDialogProps) {
   const [open, setOpen] = useState(false)
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<z.infer<typeof formSchema>>({
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch, control } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       items: [{ description: "", quantity: "1", price: "" }],
@@ -48,7 +47,7 @@ export function InvoiceDialog({ clients }: InvoiceDialogProps) {
   })
 
   const { fields, append, remove } = useFieldArray({
-    control: register as any,
+    control,
     name: "items",
   })
 
@@ -65,8 +64,8 @@ export function InvoiceDialog({ clients }: InvoiceDialogProps) {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     const formData = new FormData()
     formData.append("clientId", data.clientId)
-    formData.append("invoiceNumber", data.invoiceNumber)
     formData.append("dueDate", data.dueDate)
+    // Invoice number is auto-generated on the server
     
     data.items.forEach((item, index) => {
       formData.append(`items[${index}].description`, item.description)
@@ -112,17 +111,11 @@ export function InvoiceDialog({ clients }: InvoiceDialogProps) {
             {errors.clientId && <span className="text-red-500 text-sm">{errors.clientId.message}</span>}
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="invoiceNumber">Invoice Number</Label>
-              <Input id="invoiceNumber" {...register("invoiceNumber")} placeholder="INV-001" />
-              {errors.invoiceNumber && <span className="text-red-500 text-sm">{errors.invoiceNumber.message}</span>}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="dueDate">Due Date</Label>
-              <Input id="dueDate" type="date" {...register("dueDate")} />
-              {errors.dueDate && <span className="text-red-500 text-sm">{errors.dueDate.message}</span>}
-            </div>
+          <div className="grid gap-2">
+            <Label htmlFor="dueDate">Due Date</Label>
+            <Input id="dueDate" type="date" {...register("dueDate")} />
+            {errors.dueDate && <span className="text-red-500 text-sm">{errors.dueDate.message}</span>}
+            <p className="text-xs text-muted-foreground">Invoice number will be auto-generated</p>
           </div>
 
           <div className="space-y-4">

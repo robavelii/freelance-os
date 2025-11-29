@@ -25,7 +25,7 @@ export default async function ProjectsPage() {
             <CardContent>
               <div className="text-sm text-muted-foreground">
                 <p>Updated {formatDistanceToNow(project.updatedAt)} ago</p>
-                {project.hourlyRate && <p className="mt-1">Rate: ${project.hourlyRate}/hr</p>}
+                {project.hourlyRate && <p className="mt-1">Rate: ${Number(project.hourlyRate)}/hr</p>}
               </div>
               <div className="mt-4">
                  <span className="text-sm font-bold">{project._count.timeEntries}</span>

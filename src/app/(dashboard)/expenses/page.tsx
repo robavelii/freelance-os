@@ -1,6 +1,7 @@
 import { getExpenses } from "@/actions/expenses";
 import { ExpenseDialog } from "@/components/expense-dialog";
 import { DeleteExpenseButton } from "@/components/delete-expense-button";
+import { ExportCSVButton } from "@/components/export-csv-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 
@@ -15,7 +16,10 @@ export default async function ExpensesPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Expenses</h1>
-        <ExpenseDialog />
+        <div className="flex items-center gap-2">
+          <ExportCSVButton endpoint="expenses" />
+          <ExpenseDialog />
+        </div>
       </div>
 
       <Card>
