@@ -14,6 +14,8 @@ interface TimerProps {
     projects: { id: string; name: string; client: { name: string } }[]
 }
 
+const DEFAULT_TITLE = "FreelanceOS"
+
 export function Timer({ projects }: TimerProps) {
     const [isRunning, setIsRunning] = useState(false)
     const [elapsed, setElapsed] = useState(0)
@@ -21,6 +23,16 @@ export function Timer({ projects }: TimerProps) {
     const [selectedProject, setSelectedProject] = useState<string>("")
     const [description, setDescription] = useState("")
     const intervalRef = useRef<NodeJS.Timeout | null>(null)
+    const originalTitleRef = useRef<string>(DEFAULT_TITLE)
+
+    // Store original title on mount
+    useEffect(() => {
+        originalTitleRef.current = document.title || DEFAULT_TITLE
+        return () => {
+            // Reset title on unmount
+            document.title = originalTitleRef.current
+        }
+    }, [])
 
     useEffect(() => {
         // Load state from localStorage
@@ -50,6 +62,15 @@ export function Timer({ projects }: TimerProps) {
             if (intervalRef.current) clearInterval(intervalRef.current)
         }
     }, [isRunning, startTime])
+
+    // Update browser tab title with elapsed time while timer is running
+    useEffect(() => {
+        if (isRunning) {
+            document.title = `⏱ ${formatTime(elapsed)} - ${DEFAULT_TITLE}`
+        } else {
+            document.title = originalTitleRef.current
+        }
+    }, [isRunning, elapsed])
 
     const formatTime = (seconds: number) => {
         const h = Math.floor(seconds / 3600)
