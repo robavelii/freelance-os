@@ -15,7 +15,7 @@ export async function getProjects() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  return await prisma.project.findMany({
+  const projects = await prisma.project.findMany({
     where: { client: { userId } }, // Ensure project belongs to a client owned by user
     orderBy: { updatedAt: "desc" },
     include: {
@@ -23,6 +23,12 @@ export async function getProjects() {
       _count: { select: { timeEntries: true } }
     }
   });
+
+  // Convert Decimal to number for client component serialization
+  return projects.map(project => ({
+    ...project,
+    hourlyRate: project.hourlyRate ? Number(project.hourlyRate) : null,
+  }));
 }
 
 export async function createProject(prevState: any, formData: FormData) {
