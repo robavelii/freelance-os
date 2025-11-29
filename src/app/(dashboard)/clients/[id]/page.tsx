@@ -62,7 +62,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
                 <div className="text-center py-10 text-muted-foreground">No projects found.</div>
             ) : (
                 <div className="grid gap-4">
-                    {client.projects.map(project => (
+                    {client.projects.map((project: { id: string; name: string; updatedAt: Date }) => (
                         <Card key={project.id}>
                             <CardHeader>
                                 <CardTitle>{project.name}</CardTitle>
@@ -80,7 +80,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
                 <div className="text-center py-10 text-muted-foreground">No invoices found.</div>
             ) : (
                  <div className="grid gap-4">
-                    {client.invoices.map(invoice => (
+                    {client.invoices.map((invoice: { id: string; invoiceNumber: string; dueDate: Date }) => (
                         <Card key={invoice.id}>
                             <CardHeader>
                                 <CardTitle>{invoice.invoiceNumber}</CardTitle>
