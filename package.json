@@ -6,10 +6,13 @@
     "dev": "npm run generate && next dev",
     "build": "npm run generate && next build",
     "generate": "prisma generate",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest --run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:migrate": "prisma migrate deploy",
+    "db:push": "prisma db push"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.35.5",

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { getStripe, isStripeConfigured } from "@/lib/stripe";
 
 /**
  * Stripe Checkout Session Endpoint
@@ -13,6 +13,15 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Check if Stripe is configured
+    if (!isStripeConfigured()) {
+      return NextResponse.json(
+        { error: "Payment processing is not configured" },
+        { status: 503 }
+      );
+    }
+
+    const stripe = getStripe();
     const { id } = await params;
 
     if (!id) {
