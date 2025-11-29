@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../node_modules/.prisma/client"
+  output   = "../src/lib/prisma/generated"
 }
 
 datasource db {
@@ -8,20 +8,24 @@ datasource db {
 }
 
 model User {
-  id              String   @id @default(cuid())
-  email           String   @unique
-  name            String?
-  currency        String   @default("USD")
-  hourlyRate      Decimal? @map("hourly_rate")
-  logoUrl         String?  @map("logo_url")
-  businessName    String?  @map("business_name")
-  businessAddress String?  @map("business_address")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String?
+  currency         String   @default("USD")
+  hourlyRate       Decimal? @map("hourly_rate")
+  logoUrl          String?  @map("logo_url")
+  businessName     String?  @map("business_name")
+  businessAddress  String?  @map("business_address")
+  invoicePrefix    String   @default("INV") @map("invoice_prefix")
+  paymentTermsDays Int      @default(30) @map("payment_terms_days")
+  stripeCustomerId String?  @map("stripe_customer_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
-  clients  Client[]
-  invoices Invoice[]
-  expenses Expense[]
+  clients          Client[]
+  invoices         Invoice[]
+  expenses         Expense[]
+  invoiceSequences InvoiceSequence[]
 
   @@map("users")
 }
@@ -73,17 +77,23 @@ model TimeEntry {
 }
 
 model Invoice {
-  id            String        @id @default(cuid())
-  userId        String        @map("user_id")
-  clientId      String        @map("client_id")
-  invoiceNumber String        @map("invoice_number")
-  status        InvoiceStatus @default(DRAFT)
-  issueDate     DateTime      @default(now()) @map("issue_date")
-  dueDate       DateTime      @map("due_date")
-  totalAmount   Decimal       @map("total_amount")
-  currency      String        @default("USD")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  id              String        @id @default(cuid())
+  userId          String        @map("user_id")
+  clientId        String        @map("client_id")
+  invoiceNumber   String        @map("invoice_number")
+  status          InvoiceStatus @default(DRAFT)
+  issueDate       DateTime      @default(now()) @map("issue_date")
+  dueDate         DateTime      @map("due_date")
+  totalAmount     Decimal       @map("total_amount")
+  currency        String        @default("USD")
+  sentAt          DateTime?     @map("sent_at")
+  viewedAt        DateTime?     @map("viewed_at")
+  paidAt          DateTime?     @map("paid_at")
+  paymentMethod   String?       @map("payment_method")
+  stripeSessionId String?       @map("stripe_session_id")
+  publicToken     String        @unique @default(cuid()) @map("public_token")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
 
   user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   client Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -118,6 +128,18 @@ model Expense {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("expenses")
+}
+
+model InvoiceSequence {
+  id       String @id @default(cuid())
+  userId   String @map("user_id")
+  year     Int
+  sequence Int    @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year])
+  @@map("invoice_sequences")
 }
 
 enum InvoiceStatus {
