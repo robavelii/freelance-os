@@ -18,6 +18,7 @@ import {
   FileText,
   LayoutDashboard,
   CreditCard,
+  Sparkles,
 } from "lucide-react"
 
 import {
@@ -86,14 +87,14 @@ const data = {
       icon: Bot,
     },
     {
-      title: "Pricing",
-      url: "/pricing",
-      icon: CreditCard,
-    },
-    {
       title: "Settings",
       url: "/settings",
       icon: Settings2,
+    },
+    {
+      title: "Upgrade",
+      url: "/pricing",
+      icon: Sparkles,
     },
   ],
 }

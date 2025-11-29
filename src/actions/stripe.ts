@@ -9,10 +9,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 export async function createCheckoutSession(priceId: string) {
-  const { userId } = await auth();
+  const { userId, redirectToSignIn } = await auth();
   
   if (!userId) {
-    throw new Error("Unauthorized");
+    // Redirect to Clerk's sign-in, then back to pricing page
+    return redirectToSignIn({ returnBackUrl: "/pricing" });
   }
 
   // In a real app, you might want to get the user's email from Clerk
