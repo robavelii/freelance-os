@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
+import { getAbsoluteUrl } from "@/lib/utils";
 
 /**
  * Stripe Checkout Session Endpoint
@@ -63,8 +64,7 @@ export async function POST(
       );
     }
 
-    // Get the app URL for success/cancel redirects
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
 
     // Convert totalAmount to cents (Stripe expects amounts in smallest currency unit)
     // totalAmount is stored as Decimal in Prisma
@@ -96,9 +96,9 @@ export async function POST(
         invoiceNumber: invoice.invoiceNumber,
       },
       // Success URL - redirect back to public invoice view with success indicator
-      success_url: `${appUrl}/invoice/${invoice.publicToken}?payment=success`,
+      success_url: getAbsoluteUrl(`/invoice/${invoice.publicToken}?payment=success`),
       // Cancel URL - redirect back to public invoice view
-      cancel_url: `${appUrl}/invoice/${invoice.publicToken}?payment=cancelled`,
+      cancel_url: getAbsoluteUrl(`/invoice/${invoice.publicToken}?payment=cancelled`),
     });
 
     // Store the Stripe session ID on the invoice for reference
